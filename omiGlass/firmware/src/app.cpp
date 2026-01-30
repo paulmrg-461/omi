@@ -1,4 +1,6 @@
 #include "app.h"
+#include <vector>
+#include "wifi_uploader.h"
 
 #include <BLE2902.h>
 #include <BLEAdvertisedDevice.h>
@@ -32,6 +34,10 @@ bool powerSaveMode = false;
 
 // Light sleep optimization - saves ~15mA = adds 3-4 hours battery life
 bool lightSleepEnabled = true;
+
+// WiFi Recording State
+bool isRecordingForWifi = false;
+std::vector<uint8_t> wifiAudioBuffer;
 
 // ---------------------------------------------------------------------------------
 // BLE - Using config.h definitions
@@ -196,20 +202,44 @@ void handleButton()
         buttonDown = true;
         lastButtonTime = now;
 
+        // Start WiFi Recording
+        Serial.println("Button pressed: Starting WiFi recording...");
+        isRecordingForWifi = true;
+        wifiAudioBuffer.clear();
+        // Visual feedback
+        digitalWrite(STATUS_LED_PIN, LOW); // ON
+
     } else if (!currentButtonState && buttonDown) {
         // Button just released
         buttonDown = false;
         unsigned long pressDuration = now - buttonPressTime;
         lastButtonTime = now;
 
+        digitalWrite(STATUS_LED_PIN, HIGH); // OFF
+
         if (pressDuration >= 2000) {
             // Long press - power off
+            Serial.println("Long press detected: Powering off.");
+            isRecordingForWifi = false; // Cancel recording
+            wifiAudioBuffer.clear();
             ledMode = LED_POWER_OFF_SEQUENCE;
-        } else if (pressDuration >= 50) {
-            // Short press - register activity
-            lastActivity = now;
-            if (powerSaveMode) {
-                exitPowerSave();
+        } else {
+            // Short press - send audio
+            Serial.println("Short press detected: Sending audio...");
+            isRecordingForWifi = false;
+            
+            if (!wifiAudioBuffer.empty()) {
+                Serial.printf("Sending %d bytes of audio...\n", wifiAudioBuffer.size());
+                // Blink to indicate sending
+                blinkLED(2, 100); 
+                if (sendAudioToAPI(wifiAudioBuffer.data(), wifiAudioBuffer.size())) {
+                    blinkLED(3, 200); // Success blink
+                } else {
+                    blinkLED(5, 50); // Error blink
+                }
+                wifiAudioBuffer.clear();
+            } else {
+                Serial.println("No audio recorded.");
             }
         }
     }
@@ -306,6 +336,15 @@ void onMicData(int16_t *data, size_t samples)
 
 void onOpusEncoded(uint8_t *data, size_t len)
 {
+    // Capture for WiFi if enabled
+    if (isRecordingForWifi) {
+        // Reserve space to avoid frequent reallocations if starting fresh
+        if (wifiAudioBuffer.empty()) {
+            wifiAudioBuffer.reserve(100 * 1024); // Reserve 100KB ~ 30-60s of audio
+        }
+        wifiAudioBuffer.insert(wifiAudioBuffer.end(), data, data + len);
+    }
+
     // Store encoded data in TX ring buffer
     if (len > OPUS_OUTPUT_MAX_BYTES) {
         return;
@@ -754,6 +793,7 @@ void setup_app()
     setCpuFrequencyMhz(NORMAL_CPU_FREQ_MHZ);
     lastActivity = millis();
 
+    setupWiFi(); // Initialize WiFi
     configure_ble();
     configure_camera();
 

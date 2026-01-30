@@ -17,6 +17,13 @@
 #define MANUFACTURER_NAME "Based Hardware"
 
 // =============================================================================
+// WIFI & API CONFIGURATION (STANDALONE MODE)
+// =============================================================================
+#define WIFI_SSID "YOUR_WIFI_SSID"      // Change this
+#define WIFI_PASS "YOUR_WIFI_PASSWORD"  // Change this
+#define API_ENDPOINT "http://your-server.com/api/upload" // Change this
+
+// =============================================================================
 // POWER MANAGEMENT - Optimized for MINIMUM 6-8 hours, targeting 10+ hours
 // =============================================================================
 // CPU Frequency Management - Aggressive power optimization
