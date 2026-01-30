@@ -1,4 +1,7 @@
 #include "app.h"
+#include <vector>
+#include "wifi_manager.h"
+#include "web_server.h"
 
 #include <BLE2902.h>
 #include <BLEAdvertisedDevice.h>
@@ -33,6 +36,11 @@ bool powerSaveMode = false;
 // Light sleep optimization - saves ~15mA = adds 3-4 hours battery life
 bool lightSleepEnabled = true;
 
+// WiFi Globals
+String global_ssid = "";
+String global_pass = "";
+bool serverStarted = false;
+
 // ---------------------------------------------------------------------------------
 // BLE - Using config.h definitions
 // ---------------------------------------------------------------------------------
@@ -51,12 +59,18 @@ static BLEUUID photoControlUUID(PHOTO_CONTROL_UUID);
 static BLEUUID audioDataUUID(AUDIO_DATA_UUID);
 static BLEUUID audioCodecUUID(AUDIO_CODEC_UUID);
 
+static BLEUUID wifiSSIDUUID(WIFI_SSID_UUID);
+static BLEUUID wifiPassUUID(WIFI_PASSWORD_UUID);
+
 // Characteristics
 BLECharacteristic *photoDataCharacteristic;
 BLECharacteristic *photoControlCharacteristic;
 BLECharacteristic *batteryLevelCharacteristic;
 BLECharacteristic *audioDataCharacteristic;
 BLECharacteristic *audioCodecCharacteristic;
+
+BLECharacteristic *wifiSSIDCharacteristic;
+BLECharacteristic *wifiPassCharacteristic;
 
 // Audio state
 bool audioEnabled = true;
@@ -462,6 +476,26 @@ class PhotoControlCallback : public BLECharacteristicCallbacks
     }
 };
 
+class WiFiProvisioningCallback : public BLECharacteristicCallbacks {
+    void onWrite(BLECharacteristic *pCharacteristic) {
+        std::string value = pCharacteristic->getValue();
+        String strVal = String(value.c_str());
+        
+        if (pCharacteristic->getUUID().toString() == wifiSSIDUUID.toString()) {
+             Serial.print("BLE: Received SSID: "); Serial.println(strVal);
+             global_ssid = strVal;
+        } else if (pCharacteristic->getUUID().toString() == wifiPassUUID.toString()) {
+             Serial.print("BLE: Received Password: "); Serial.println(strVal);
+             global_pass = strVal;
+             
+             // Trigger connection if we have both
+             if (global_ssid.length() > 0) {
+                 setupWiFi(global_ssid, global_pass);
+             }
+        }
+    }
+};
+
 // -------------------------------------------------------------------------
 // Battery Functions
 // -------------------------------------------------------------------------
@@ -579,6 +613,15 @@ void configure_ble()
     photoControlCharacteristic->setCallbacks(new PhotoControlCallback());
     uint8_t controlValue = 0;
     photoControlCharacteristic->setValue(&controlValue, 1);
+
+    // WiFi Characteristics
+    wifiSSIDCharacteristic = service->createCharacteristic(
+        wifiSSIDUUID, BLECharacteristic::PROPERTY_WRITE);
+    wifiSSIDCharacteristic->setCallbacks(new WiFiProvisioningCallback());
+
+    wifiPassCharacteristic = service->createCharacteristic(
+        wifiPassUUID, BLECharacteristic::PROPERTY_WRITE);
+    wifiPassCharacteristic->setCallbacks(new WiFiProvisioningCallback());
 
     // Battery Service
     BLEService *batteryService = server->createService(BATTERY_SERVICE_UUID);
@@ -806,6 +849,28 @@ void loop_app()
 
     // Handle button presses
     handleButton();
+
+    // Check WiFi Status & Start Server
+    if (checkWiFiConnection()) {
+        if (!serverStarted) {
+            startCameraServer();
+            
+            // Notify IP Address via BLE
+            String ip = getWiFiIP();
+            Serial.print("Notifying IP Address: ");
+            Serial.println(ip);
+            if (ipAddressCharacteristic) {
+                ipAddressCharacteristic->setValue(ip.c_str());
+                if (connected) {
+                    ipAddressCharacteristic->notify();
+                }
+            }
+            
+            // TODO: Start Audio WebSocket here too if needed
+            serverStarted = true;
+            Serial.println("Web Server Started. MJPEG Stream available at http://" + getWiFiIP() + "/stream");
+        }
+    }
 
     // Update LED
     updateLED();
