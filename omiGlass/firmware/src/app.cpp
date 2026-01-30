@@ -61,6 +61,7 @@ static BLEUUID audioCodecUUID(AUDIO_CODEC_UUID);
 
 static BLEUUID wifiSSIDUUID(WIFI_SSID_UUID);
 static BLEUUID wifiPassUUID(WIFI_PASSWORD_UUID);
+static BLEUUID ipAddressUUID(IP_ADDRESS_UUID);
 
 // Characteristics
 BLECharacteristic *photoDataCharacteristic;
@@ -71,6 +72,7 @@ BLECharacteristic *audioCodecCharacteristic;
 
 BLECharacteristic *wifiSSIDCharacteristic;
 BLECharacteristic *wifiPassCharacteristic;
+BLECharacteristic *ipAddressCharacteristic;
 
 // Audio state
 bool audioEnabled = true;
@@ -622,6 +624,13 @@ void configure_ble()
     wifiPassCharacteristic = service->createCharacteristic(
         wifiPassUUID, BLECharacteristic::PROPERTY_WRITE);
     wifiPassCharacteristic->setCallbacks(new WiFiProvisioningCallback());
+
+    // IP Address Characteristic
+    ipAddressCharacteristic = service->createCharacteristic(
+        ipAddressUUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+    BLE2902 *ipCcc = new BLE2902();
+    ipCcc->setNotifications(true);
+    ipAddressCharacteristic->addDescriptor(ipCcc);
 
     // Battery Service
     BLEService *batteryService = server->createService(BATTERY_SERVICE_UUID);
