@@ -1,6 +1,7 @@
 #include "app.h"
 #include <vector>
 #include "wifi_uploader.h"
+#include "audio_output.h"
 
 #include <BLE2902.h>
 #include <BLEAdvertisedDevice.h>
@@ -823,6 +824,15 @@ void setup_app()
 
     // Initialize audio subsystem
     Serial.println("Initializing audio subsystem...");
+
+    // Initialize Speaker
+    if (audio_output_init()) {
+        Serial.println("Speaker initialized.");
+        audio_output_beep(880, 200); // Startup beep
+    } else {
+        Serial.println("Failed to initialize Speaker!");
+    }
+
     if (opus_encoder_init()) {
         opus_set_callback(onOpusEncoded);
 

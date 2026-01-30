@@ -24,6 +24,13 @@
 #define API_ENDPOINT "http://your-server.com/api/upload" // Change this
 
 // =============================================================================
+// AUDIO OUTPUT CONFIGURATION (MAX98357A I2S)
+// =============================================================================
+#define I2S_SPEAKER_LRC 3  // D2 - GPIO 3
+#define I2S_SPEAKER_BCLK 4 // D3 - GPIO 4
+#define I2S_SPEAKER_DIN 5  // D4 - GPIO 5
+
+// =============================================================================
 // POWER MANAGEMENT - Optimized for MINIMUM 6-8 hours, targeting 10+ hours
 // =============================================================================
 // CPU Frequency Management - Aggressive power optimization
