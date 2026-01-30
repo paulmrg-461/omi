@@ -76,7 +76,7 @@ class _TranscriptWidgetState extends State<TranscriptWidget> {
 
   // Search result tracking
   List<GlobalKey> _segmentKeys = [];
-  List<GlobalKey> _matchKeys = [];
+  final List<GlobalKey> _matchKeys = [];
   int _previousSearchResultIndex = -1;
 
   // Toggle to show/hide speaker names globally
@@ -222,7 +222,7 @@ class _TranscriptWidgetState extends State<TranscriptWidget> {
     if (_scrollController.hasClients) {
       final maxScroll = _scrollController.position.maxScrollExtent;
       final currentScroll = _scrollController.offset;
-      final threshold = 100.0;
+      const threshold = 100.0;
       final distanceFromBottom = maxScroll - currentScroll;
 
       if (distanceFromBottom > threshold) {
@@ -332,7 +332,7 @@ class _TranscriptWidgetState extends State<TranscriptWidget> {
         return;
       }
 
-      final itemHeight = 80.0;
+      const itemHeight = 80.0;
       final headerHeight = widget.topMargin ? 32.0 : 0.0;
       final targetOffset = headerHeight + (targetSegmentIndex * itemHeight);
 
@@ -600,7 +600,7 @@ class _TranscriptWidgetState extends State<TranscriptWidget> {
                                         ? 6
                                         : 18),
                                 topRight: Radius.circular(isUser ? 18 : 18),
-                                bottomLeft: Radius.circular(18),
+                                bottomLeft: const Radius.circular(18),
                                 bottomRight: Radius.circular(isUser ? 6 : 18),
                               ),
                               boxShadow: [

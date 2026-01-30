@@ -16,7 +16,6 @@ import 'package:omi/providers/capture_provider.dart';
 import 'package:omi/providers/home_provider.dart';
 import 'package:omi/providers/speech_profile_provider.dart';
 import 'package:omi/services/services.dart';
-import 'package:omi/utils/analytics/intercom.dart';
 import 'package:omi/utils/l10n_extensions.dart';
 import 'package:omi/utils/logger.dart';
 import 'package:omi/utils/other/temp.dart';
@@ -420,7 +419,9 @@ class _SpeechProfilePageState extends State<SpeechProfilePage> with TickerProvid
                                       padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 14),
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
                                       child: Text(
-                                        SharedPreferencesUtil().hasSpeakerProfile ? context.l10n.doItAgain : context.l10n.getStarted,
+                                        SharedPreferencesUtil().hasSpeakerProfile
+                                            ? context.l10n.doItAgain
+                                            : context.l10n.getStarted,
                                         style: const TextStyle(color: Colors.black),
                                       ),
                                     ),

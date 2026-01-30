@@ -932,7 +932,7 @@ class _DesktopHomePageState extends State<DesktopHomePage> with WidgetsBindingOb
                       ),
                     ),
                     // Arrow indicator
-                    Icon(
+                    const Icon(
                       Icons.chevron_right,
                       color: ResponsiveHelper.textTertiary,
                       size: 18,

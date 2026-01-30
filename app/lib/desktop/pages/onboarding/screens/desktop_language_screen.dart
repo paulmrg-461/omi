@@ -93,7 +93,7 @@ class _DesktopLanguageScreenState extends State<DesktopLanguageScreen> with Tick
       final homeProvider = Provider.of<HomeProvider>(context, listen: false);
       // Only set selected language if user has previously saved one
       final savedLanguage = homeProvider.userPrimaryLanguage;
-      if (savedLanguage != null && savedLanguage.isNotEmpty) {
+      if (savedLanguage.isNotEmpty) {
         setState(() {
           selectedLanguage = savedLanguage;
         });
@@ -270,13 +270,13 @@ class _DesktopLanguageScreenState extends State<DesktopLanguageScreen> with Tick
                       color: Color(0xFF6B7280),
                       fontSize: 15,
                     ),
-                    prefixIcon: Icon(
+                    prefixIcon: const Icon(
                       Icons.search_rounded,
                       color: Color(0xFF6B7280),
                       size: 20,
                     ),
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(
+                    contentPadding: const EdgeInsets.symmetric(
                       horizontal: 20,
                       vertical: 16,
                     ),

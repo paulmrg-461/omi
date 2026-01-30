@@ -163,7 +163,7 @@ class _DeveloperSettingsPageState extends State<DeveloperSettingsPage> {
         Switch(
           value: value,
           onChanged: onChanged,
-          activeColor: const Color(0xFF22C55E),
+          activeThumbColor: const Color(0xFF22C55E),
         ),
       ],
     );
@@ -220,7 +220,7 @@ class _DeveloperSettingsPageState extends State<DeveloperSettingsPage> {
             Switch(
               value: isEnabled,
               onChanged: onToggle,
-              activeColor: const Color(0xFF22C55E),
+              activeThumbColor: const Color(0xFF22C55E),
             ),
           ],
         ),
@@ -829,7 +829,7 @@ class _DeveloperSettingsPageState extends State<DeveloperSettingsPage> {
                                 await DebugLogManager.setEnabled(v);
                                 setState(() {});
                               },
-                              activeColor: const Color(0xFF22C55E),
+                              activeThumbColor: const Color(0xFF22C55E),
                             ),
                           ],
                         ),

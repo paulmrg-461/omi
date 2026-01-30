@@ -22,7 +22,7 @@ class GoalsWidget extends StatefulWidget {
 class GoalsWidgetState extends State<GoalsWidget> with WidgetsBindingObserver {
   List<Goal> _goals = [];
   bool _isLoading = true;
-  bool _isExpanded = false;
+  final bool _isExpanded = false;
 
   static const String _goalsStorageKey = 'goals_tracker_local_goals';
   static const String _goalsEmojiKey = 'goals_tracker_emojis';

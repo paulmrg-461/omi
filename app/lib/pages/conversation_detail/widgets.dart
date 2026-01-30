@@ -685,8 +685,8 @@ class AppResultDetailWidget extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(
-                            child: Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
                             width: 42,
+                            child: Icon(Icons.arrow_forward_ios, color: Colors.white, size: 20),
                           ),
                         ],
                       ),

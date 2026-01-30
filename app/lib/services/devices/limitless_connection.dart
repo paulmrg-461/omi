@@ -29,7 +29,7 @@ class LimitlessDeviceConnection extends DeviceConnection {
   bool _isBatchMode = false;
 
   int _highestReceivedIndex = -1;
-  int _lastAcknowledgedIndex = -1;
+  final int _lastAcknowledgedIndex = -1;
 
   static const int _buttonNotPressed = 0;
   static const int _buttonShortPress = 1;

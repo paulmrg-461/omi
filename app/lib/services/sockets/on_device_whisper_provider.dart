@@ -34,9 +34,9 @@ class OnDeviceWhisperProvider implements ISttProvider {
 
       WhisperModel targetModel = WhisperModel.tiny;
 
-      if (filename.contains('tiny'))
+      if (filename.contains('tiny')) {
         targetModel = WhisperModel.tiny;
-      else if (filename.contains('base'))
+      } else if (filename.contains('base'))
         targetModel = WhisperModel.base;
       else if (filename.contains('small'))
         targetModel = WhisperModel.small;
@@ -92,11 +92,11 @@ class OnDeviceWhisperProvider implements ISttProvider {
           transcribeRequest: req,
         );
 
-        if (res.text == null || res.text!.isEmpty) {
+        if (res.text.isEmpty) {
           return null;
         }
 
-        String cleanText = res.text!.trim();
+        String cleanText = res.text.trim();
         cleanText = cleanText.replaceAll(RegExp(r'\[.*?\]'), '').trim();
         cleanText = cleanText.replaceAll(RegExp(r'\(.*?\)'), '').trim();
 

@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 
 import 'package:omi/backend/preferences.dart';
 import 'package:omi/l10n/app_localizations.dart';
-import 'package:omi/utils/l10n_extensions.dart';
 import 'package:omi/desktop/pages/desktop_home_page.dart';
 import 'package:omi/desktop/pages/onboarding/screens/desktop_auth_screen.dart';
 import 'package:omi/desktop/pages/onboarding/screens/desktop_complete_screen.dart';

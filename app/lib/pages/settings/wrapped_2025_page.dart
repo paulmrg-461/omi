@@ -593,7 +593,8 @@ class _Wrapped2025PageState extends State<Wrapped2025Page> {
 
     // Struggle + Win
     final struggle = (_result?['struggle'] as Map<String, dynamic>?)?['title'] ?? context.l10n.wrappedTheHardPart;
-    final biggestWin = (_result?['personal_win'] as Map<String, dynamic>?)?['title'] ?? context.l10n.wrappedPersonalGrowth;
+    final biggestWin =
+        (_result?['personal_win'] as Map<String, dynamic>?)?['title'] ?? context.l10n.wrappedPersonalGrowth;
 
     _shareTemplate(
       templates.FinalCollageShareTemplate(
@@ -910,8 +911,6 @@ class _Wrapped2025PageState extends State<Wrapped2025Page> {
   Widget _buildCardBase({
     required Color backgroundColor,
     required Widget child,
-    Color textColor = Colors.white,
-    bool isDark = true,
     EdgeInsets? customPadding,
   }) {
     return Container(
@@ -1494,8 +1493,8 @@ class _YearInNumbersAnimated extends StatefulWidget {
     required this.daysActive,
     required this.percentile,
     required this.isActive,
-    this.onShare,
     this.shareKey,
+    this.onShare,
   });
 
   @override
@@ -2830,10 +2829,10 @@ class _MemorableDaysAnimated extends StatefulWidget {
     this.headerLine1 = 'Your',
     this.headerLine2 = 'Top Days',
     this.summaryBadgeText = 'Your Top Days',
+    this.badgeEmoji = '🏆',
+    this.isSingleMoment = false,
     this.onShare,
     this.badgeColor = WrappedColors.teal,
-    this.isSingleMoment = false,
-    this.badgeEmoji,
   });
 
   @override
@@ -4567,7 +4566,8 @@ class _SummaryCollageAnimatedState extends State<_SummaryCollageAnimated> with T
 
     // Struggle + Win
     final struggle = (widget.result['struggle'] as Map<String, dynamic>?)?['title'] ?? context.l10n.wrappedTheHardPart;
-    final biggestWin = (widget.result['personal_win'] as Map<String, dynamic>?)?['title'] ?? context.l10n.wrappedPersonalGrowth;
+    final biggestWin =
+        (widget.result['personal_win'] as Map<String, dynamic>?)?['title'] ?? context.l10n.wrappedPersonalGrowth;
 
     return AnimatedBuilder(
       animation: Listenable.merge([_mainAnimation, _tilesAnimation]),
@@ -4729,7 +4729,8 @@ class _SummaryCollageAnimatedState extends State<_SummaryCollageAnimated> with T
                                 const Text('😤', style: TextStyle(fontSize: 18)),
                                 const SizedBox(width: 6),
                                 Text(context.l10n.wrappedStruggleLabelUpper,
-                                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
                               ],
                             ),
                             const SizedBox(height: 8),
@@ -4763,7 +4764,8 @@ class _SummaryCollageAnimatedState extends State<_SummaryCollageAnimated> with T
                                 const Text('🏆', style: TextStyle(fontSize: 18)),
                                 const SizedBox(width: 6),
                                 Text(context.l10n.wrappedWinLabelUpper,
-                                    style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 12, fontWeight: FontWeight.w800)),
                               ],
                             ),
                             const SizedBox(height: 8),
@@ -5138,7 +5140,7 @@ class _ThatsAWrapAnimatedState extends State<_ThatsAWrapAnimated> with TickerPro
                           // Stats row
                           Row(
                             children: [
-                              Expanded(child: _buildStatItem('${widget.totalHours.toStringAsFixed(0)}', 'hours', '⏱️')),
+                              Expanded(child: _buildStatItem(widget.totalHours.toStringAsFixed(0), 'hours', '⏱️')),
                               Container(width: 1, height: 50, color: Colors.white.withOpacity(0.2)),
                               Expanded(child: _buildStatItem('${widget.totalConvs}', 'convos', '💬')),
                               Container(width: 1, height: 50, color: Colors.white.withOpacity(0.2)),

@@ -930,7 +930,7 @@ class _ActionItemTileWidgetState extends State<ActionItemTileWidget> {
       color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
+        side: const BorderSide(
           color: Colors.transparent,
           width: 0,
         ),

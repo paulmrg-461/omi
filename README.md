@@ -45,6 +45,15 @@ cd omi/app
 bash setup.sh ios     # android, macos
 ```
 
+## 🧪 Testing
+
+Run the test suite to ensure everything is working correctly:
+
+```bash
+cd app
+bash test.sh
+```
+
 ## Create your own App (1 min)
 
 Download omi App

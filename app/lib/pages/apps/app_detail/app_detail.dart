@@ -467,7 +467,7 @@ class _AppDetailPageState extends State<AppDetailPage> {
             final permission = entry.value;
             final isLast = entry.key == permissionItems.length - 1;
             return _buildPermissionItem(permission, isLast);
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -567,7 +567,7 @@ class _AppDetailPageState extends State<AppDetailPage> {
   }
 
   Widget _buildChatToolChip(ChatTool tool) {
-    final color = Colors.grey;
+    const color = Colors.grey;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
@@ -1665,7 +1665,7 @@ class _AppDetailPageState extends State<AppDetailPage> {
                                   Row(
                                     children: [
                                       Text(context.l10n.ratingsAndReviews,
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600)),
                                       const Spacer(),
                                       app.reviews.isNotEmpty

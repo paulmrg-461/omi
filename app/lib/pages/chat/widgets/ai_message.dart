@@ -1161,9 +1161,9 @@ class _MessageActionBarState extends State<MessageActionBar> {
                   SnackBar(
                     content: Text(
                       context.l10n.messageCopied,
-                      style: TextStyle(color: Colors.white, fontSize: 12.0),
+                      style: const TextStyle(color: Colors.white, fontSize: 12.0),
                     ),
-                    duration: Duration(milliseconds: 1500),
+                    duration: const Duration(milliseconds: 1500),
                   ),
                 );
               }

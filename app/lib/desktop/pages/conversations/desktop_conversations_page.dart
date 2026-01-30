@@ -647,8 +647,7 @@ class _DesktopConversationsPageState extends State<DesktopConversationsPage>
               onPrimary: Colors.white,
               surface: ResponsiveHelper.backgroundSecondary,
               onSurface: ResponsiveHelper.textPrimary,
-            ),
-            dialogBackgroundColor: ResponsiveHelper.backgroundSecondary,
+            ), dialogTheme: DialogThemeData(backgroundColor: ResponsiveHelper.backgroundSecondary),
           ),
           child: child!,
         );

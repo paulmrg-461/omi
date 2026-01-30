@@ -275,7 +275,7 @@ class SDCardWalSyncImpl implements SDCardWalSync {
     int offset = wal.storageOffset;
     int timerStart = wal.timerStart;
 
-    Logger.debug("_readStorageBytesToFile ${offset}");
+    Logger.debug("_readStorageBytesToFile $offset");
 
     List<List<int>> bytesData = [];
     var bytesLeft = 0;

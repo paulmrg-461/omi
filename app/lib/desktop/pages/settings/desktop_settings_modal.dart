@@ -1147,7 +1147,7 @@ class _DesktopSettingsModalState extends State<DesktopSettingsModal> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        const Text(
           'Get a personalized summary of your day\'s conversations delivered as a notification.',
           style: TextStyle(
             fontSize: 12,
@@ -1254,7 +1254,7 @@ class _DesktopSettingsModalState extends State<DesktopSettingsModal> {
           ),
         ),
         const SizedBox(height: 4),
-        Text(
+        const Text(
           'Get a reminder at 9 PM to reflect on your day and capture your thoughts.',
           style: TextStyle(
             fontSize: 12,
@@ -1275,8 +1275,8 @@ class _DesktopSettingsModalState extends State<DesktopSettingsModal> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             child: Row(
               children: [
-                Expanded(
-                  child: const Text(
+                const Expanded(
+                  child: Text(
                     'Enable',
                     style: TextStyle(
                       fontSize: 14,
@@ -2090,8 +2090,8 @@ class _DesktopSettingsModalState extends State<DesktopSettingsModal> {
                           ),
                           TextButton(
                             onPressed: () => launchUrl(Uri.parse('https://docs.omi.me/doc/developer/MCP')),
-                            child: Text(context.l10n.docs),
                             style: TextButton.styleFrom(foregroundColor: ResponsiveHelper.purplePrimary),
+                            child: Text(context.l10n.docs),
                           ),
                           TextButton.icon(
                             onPressed: () => showDialog(

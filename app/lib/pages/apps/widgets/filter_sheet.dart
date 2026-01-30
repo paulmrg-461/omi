@@ -25,9 +25,9 @@ class FilterBottomSheet extends StatelessWidget {
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
                 child: Row(
                   children: [
-                    Text(
+                    const Text(
                       'Filters',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: Colors.white,
@@ -38,7 +38,7 @@ class FilterBottomSheet extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: Color(0xFF8B5CF6),
+                          color: const Color(0xFF8B5CF6),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
@@ -68,7 +68,7 @@ class FilterBottomSheet extends StatelessWidget {
               Container(
                 margin: const EdgeInsets.symmetric(vertical: 16),
                 height: 1,
-                color: Color(0xFF35343B),
+                color: const Color(0xFF35343B),
               ),
 
               // Content
@@ -113,8 +113,8 @@ class FilterBottomSheet extends StatelessWidget {
               // Bottom buttons
               Container(
                 padding: const EdgeInsets.fromLTRB(20, 20, 20, 40),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF1C1C1E),
+                decoration: const BoxDecoration(
+                  color: Color(0xFF1C1C1E),
                   border: Border(
                     top: BorderSide(color: Color(0xFF35343B), width: 1),
                   ),
@@ -209,7 +209,7 @@ class FilterBottomSheet extends StatelessWidget {
               margin: const EdgeInsets.only(right: 8),
               padding: const EdgeInsets.symmetric(vertical: 12),
               decoration: BoxDecoration(
-                color: isSelected ? Color(0xFF8B5CF6) : Color(0xFF35343B),
+                color: isSelected ? const Color(0xFF8B5CF6) : const Color(0xFF35343B),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Center(
@@ -244,7 +244,7 @@ class FilterBottomSheet extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isSelected ? Color(0xFF8B5CF6) : Color(0xFF35343B),
+              color: isSelected ? const Color(0xFF8B5CF6) : const Color(0xFF35343B),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -286,7 +286,7 @@ class FilterBottomSheet extends StatelessWidget {
               decoration: BoxDecoration(
                 color: const Color(0xFF1F1F25).withOpacity(0.5),
                 borderRadius: BorderRadius.circular(12),
-                border: isSelected ? Border.all(color: Color(0xFF8B5CF6), width: 2) : null,
+                border: isSelected ? Border.all(color: const Color(0xFF8B5CF6), width: 2) : null,
               ),
               child: Row(
                 children: [
@@ -295,9 +295,9 @@ class FilterBottomSheet extends StatelessWidget {
                     height: 20,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: isSelected ? Color(0xFF8B5CF6) : Colors.transparent,
+                      color: isSelected ? const Color(0xFF8B5CF6) : Colors.transparent,
                       border: Border.all(
-                        color: isSelected ? Color(0xFF8B5CF6) : Colors.grey.shade500,
+                        color: isSelected ? const Color(0xFF8B5CF6) : Colors.grey.shade500,
                         width: 2,
                       ),
                     ),
@@ -342,7 +342,7 @@ class FilterBottomSheet extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: isSelected ? Color(0xFF8B5CF6) : Color(0xFF35343B),
+              color: isSelected ? const Color(0xFF8B5CF6) : const Color(0xFF35343B),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(

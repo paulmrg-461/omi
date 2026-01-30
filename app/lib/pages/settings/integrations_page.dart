@@ -706,7 +706,7 @@ class _IntegrationsPageState extends State<IntegrationsPage> with WidgetsBinding
               Expanded(
                 child: ListView(
                   children: [
-                    ...IntegrationApp.values.map((app) => _buildAppTile(app, isLoading)).toList(),
+                    ...IntegrationApp.values.map((app) => _buildAppTile(app, isLoading)),
                     _buildCreateYourOwnAppTile(),
                   ],
                 ),

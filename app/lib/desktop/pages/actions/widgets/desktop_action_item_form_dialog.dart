@@ -398,7 +398,7 @@ class _DesktopActionItemFormDialogState extends State<DesktopActionItemFormDialo
           ),
           decoration: InputDecoration(
             hintText: context.l10n.enterActionItemDescription,
-            hintStyle: TextStyle(
+            hintStyle: const TextStyle(
               color: ResponsiveHelper.textTertiary,
               fontSize: 16,
             ),

@@ -152,8 +152,8 @@ class _ScoreWidgetState extends State<ScoreWidget> with SingleTickerProviderStat
       for (var conv in allConversations) {
         final convDate = conv.createdAt;
         if (convDate.isAfter(today) && convDate.isBefore(todayEnd)) {
-          if (conv.structured?.actionItems != null) {
-            for (var item in conv.structured!.actionItems) {
+          if (conv.structured.actionItems != null) {
+            for (var item in conv.structured.actionItems) {
               todayTasksTotal++;
               if (item.completed) {
                 todayTasksDone++;
@@ -203,8 +203,8 @@ class _ScoreWidgetState extends State<ScoreWidget> with SingleTickerProviderStat
         for (var conv in allConversations) {
           final convDate = conv.createdAt;
           if (convDate.isAfter(dayStart) && convDate.isBefore(dayEnd)) {
-            if (conv.structured?.actionItems != null) {
-              for (var item in conv.structured!.actionItems) {
+            if (conv.structured.actionItems != null) {
+              for (var item in conv.structured.actionItems) {
                 tasksTotal++;
                 if (item.completed) {
                   tasksDone++;
@@ -850,9 +850,9 @@ class _ScoreWidgetState extends State<ScoreWidget> with SingleTickerProviderStat
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          title: Text(
+          title: const Text(
             'How Grade Works',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.white,
@@ -958,7 +958,7 @@ class _LineChartPainter extends CustomPainter {
     double getY(double rating) {
       // Invert Y because canvas Y increases downward
       // Map 0-5 to chartHeight-10 to 10 (with some padding)
-      final padding = 12.0;
+      const padding = 12.0;
       final availableHeight = chartHeight - padding * 2;
       return padding + (1 - rating / 5) * availableHeight;
     }

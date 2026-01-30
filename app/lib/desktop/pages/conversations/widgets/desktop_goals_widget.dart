@@ -575,7 +575,7 @@ class _DesktopGoalsWidgetState extends State<DesktopGoalsWidget> with WidgetsBin
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
                     onTap: _addGoal,
-                    child: Icon(
+                    child: const Icon(
                       Icons.add_rounded,
                       size: 20,
                       color: ResponsiveHelper.textTertiary,
@@ -596,7 +596,7 @@ class _DesktopGoalsWidgetState extends State<DesktopGoalsWidget> with WidgetsBin
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.add_rounded, size: 16, color: ResponsiveHelper.textTertiary),
+                            const Icon(Icons.add_rounded, size: 16, color: ResponsiveHelper.textTertiary),
                             const SizedBox(width: 8),
                             Text(
                               context.l10n.tapToAddGoal,
@@ -677,7 +677,7 @@ class _DesktopGoalsWidgetState extends State<DesktopGoalsWidget> with WidgetsBin
                         const SizedBox(width: 8),
                         Text(
                           '${_rawNum(goal.currentValue)}/${_rawNum(goal.targetValue)}',
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: ResponsiveHelper.textTertiary,
                             fontSize: 11,
                           ),

@@ -21,7 +21,14 @@ Before getting started, make sure your device is connected and unlocked. If you'
    # For Android
    bash setup.sh android
    ```
- 
+
+   **For Windows (PowerShell):**
+   ```powershell
+   # Run the setup script
+   .\setup\scripts\setup.ps1
+   # Follow the prompts to select your platform (iOS/Android)
+   ```
+
 3. Ensure GitHub SSH access is set up correctly for pulling certificates from repositories. After running the command below, if you're prompted for a passphrase, enter your SSH passphrase — or simply press Enter/Return if you haven't set one.
     ```bash
    cd ~/.ssh; ssh-add
@@ -32,6 +39,14 @@ Before getting started, make sure your device is connected and unlocked. If you'
    flutter run --flavor dev
    ```
 
+### Testing
+
+We follow TDD principles. Ensure all tests pass before submitting changes.
+
+```bash
+# Run all tests
+bash test.sh
+```
 
 ### Building and Deploying to iPhone
 

@@ -99,7 +99,7 @@ class ForceDirectedSimulation3D {
       node.force.setZero();
     }
 
-    final maxPairs = 5000;
+    const maxPairs = 5000;
     final totalPairs = (nodeCount * (nodeCount - 1)) ~/ 2;
     final skipFactor = totalPairs > maxPairs ? totalPairs ~/ maxPairs : 1;
     int pairIndex = 0;
@@ -252,7 +252,7 @@ class _MemoryGraphPageState extends State<MemoryGraphPage> with SingleTickerProv
   final _repaintNotifier = ValueNotifier<int>(0);
 
   String? _selectedNodeId;
-  Set<String> _highlightedNodeIds = {};
+  final Set<String> _highlightedNodeIds = {};
 
   @override
   void initState() {
@@ -483,7 +483,7 @@ class _MemoryGraphPageState extends State<MemoryGraphPage> with SingleTickerProv
       canvas.drawImage(image, Offset.zero, paint);
 
       // Draw minimal branding "omi.me" at top center
-      final textSpan = TextSpan(
+      const textSpan = TextSpan(
         text: 'omi.me',
         style: const TextStyle(
           color: Colors.white,
@@ -500,7 +500,7 @@ class _MemoryGraphPageState extends State<MemoryGraphPage> with SingleTickerProv
 
       // Center horizontally, near top
       final xPos = (image.width - textPainter.width) / 2;
-      final yPos = 140.0; // Margin from top (increased to avoid notch/edge feeling)
+      const yPos = 140.0; // Margin from top (increased to avoid notch/edge feeling)
 
       textPainter.paint(canvas, Offset(xPos, yPos));
 
@@ -755,7 +755,7 @@ class _MemoryGraphPageState extends State<MemoryGraphPage> with SingleTickerProv
       _highlightedNodeIds.clear();
 
       if (hitNodeId != null) {
-        _highlightedNodeIds.add(hitNodeId!);
+        _highlightedNodeIds.add(hitNodeId);
 
         final node = simulation.nodeMap[hitNodeId];
         if (node != null) {

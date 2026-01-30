@@ -11,7 +11,7 @@ import 'package:omi/utils/logger.dart';
 class FileUtils {
   static Future<File> saveAudioBytesToTempFile(List<List<int>> chunk, int timerStart, int frameSize) async {
     final directory = await getTemporaryDirectory();
-    String filePath = '${directory.path}/audio_fs${frameSize}_${timerStart}.bin';
+    String filePath = '${directory.path}/audio_fs${frameSize}_$timerStart.bin';
     List<int> data = [];
     for (int i = 0; i < chunk.length; i++) {
       var frame = chunk[i];
