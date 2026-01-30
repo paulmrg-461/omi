@@ -1,4 +1,5 @@
 # OMI Glass Firmware Guide
+### Ble Only
 
 This document provides comprehensive instructions for building, flashing, and managing the OMI Glass firmware.
 
