@@ -6,17 +6,26 @@
 static String _ssid = "";
 static String _password = "";
 static bool _wifi_connected = false;
+static bool _should_connect = false;
 
 void setupWiFi(String ssid, String password) {
     _ssid = ssid;
     _password = password;
     
-    if (ssid.length() == 0) return;
+    if (ssid.length() > 0) {
+        _should_connect = true;
+        Serial.println("WiFi credentials received. Scheduled connection...");
+    }
+}
 
-    Serial.printf("Connecting to WiFi: %s\n", ssid.c_str());
-    WiFi.begin(ssid.c_str(), password.c_str());
+void handleWiFiConnection() {
+    if (!_should_connect) return;
     
-    // We don't block here, we let the loop check status
+    _should_connect = false;
+    Serial.printf("Connecting to WiFi: %s\n", _ssid.c_str());
+    WiFi.mode(WIFI_STA); // Ensure Station mode
+    WiFi.setSleep(false); // Disable WiFi power save to prevent BLE interference
+    WiFi.begin(_ssid.c_str(), _password.c_str());
 }
 
 bool checkWiFiConnection() {

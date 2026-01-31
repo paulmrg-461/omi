@@ -418,8 +418,7 @@ class ServerHandler : public BLEServerCallbacks
         audioSubscribed = false;
         lastActivity = millis(); // Register activity - prevents sleep
         Serial.println(">>> BLE Client connected.");
-        // Send current battery level on connect
-        updateBatteryService();
+        // Don't send battery update here; client is not subscribed yet!
     }
     void onDisconnect(BLEServer *server) override
     {
@@ -668,12 +667,35 @@ void configure_ble()
 
     // Start advertising
     BLEAdvertising *advertising = BLEDevice::getAdvertising();
-    advertising->addServiceUUID(deviceInfoService->getUUID());
-    advertising->addServiceUUID(service->getUUID());
-    advertising->addServiceUUID(batteryService->getUUID());
-    advertising->setScanResponse(true);
-    advertising->setMinPreferred(BLE_ADV_MIN_INTERVAL);
-    advertising->setMaxPreferred(BLE_ADV_MAX_INTERVAL);
+    
+    // Explicitly set Advertisement Data (UUIDs ONLY)
+    // Keep it small to ensure it's always received correctly.
+    BLEAdvertisementData advertisementData;
+    // 0x06 = General Discoverable Mode (0x02) | BR/EDR Not Supported (0x04)
+    // This is crucial for Android/iOS to see us as a connectable BLE device.
+    advertisementData.setFlags(0x06); 
+    advertisementData.setCompleteServices(serviceUUID);
+    advertising->setAdvertisementData(advertisementData);
+
+    // Explicitly set Scan Response Data (Name ONLY)
+    // Devices that want the name will ask for it (Active Scan).
+    BLEAdvertisementData scanResponseData;
+    scanResponseData.setName(BLE_DEVICE_NAME);
+    advertising->setScanResponseData(scanResponseData);
+    
+    // Set Advertising Interval (How often we shout "I'm here!")
+    // 0x140 (320) * 0.625ms = 200ms
+    // 0x280 (640) * 0.625ms = 400ms
+    advertising->setMinInterval(BLE_ADV_MIN_INTERVAL);
+    advertising->setMaxInterval(BLE_ADV_MAX_INTERVAL);
+
+    // REMOVED Preferred Connection Parameters from Advertisement
+    // Let the central (phone) decide the initial connection parameters.
+    // Setting these in advertisement can sometimes cause connection rejections
+    // if the phone doesn't like them.
+    // advertising->setMinPreferred(BLE_CONN_MIN_INTERVAL);
+    // advertising->setMaxPreferred(BLE_CONN_MAX_INTERVAL);
+
     BLEDevice::startAdvertising();
 
     Serial.println("BLE initialized and advertising started.");
@@ -786,12 +808,23 @@ static uint8_t *s_compressed_frame_2 = nullptr;
 
 void setup_app()
 {
+    // Ensure WiFi is OFF by default to prevent radio conflict during boot
+    WiFi.mode(WIFI_OFF);
+
+    // Initialize GPIO immediately for visual feedback
+    pinMode(STATUS_LED_PIN, OUTPUT);
+    // Blink LED 3 times quickly to indicate power on / reset
+    for(int i=0; i<3; i++) {
+        digitalWrite(STATUS_LED_PIN, LOW); // ON
+        delay(100);
+        digitalWrite(STATUS_LED_PIN, HIGH); // OFF
+        delay(100);
+    }
+
     Serial.begin(921600);
     Serial.println("Setup started...");
 
-    // Initialize GPIO
     pinMode(POWER_BUTTON_PIN, INPUT_PULLUP);
-    pinMode(STATUS_LED_PIN, OUTPUT);
 
     // LED uses inverted logic: HIGH = OFF, LOW = ON
     digitalWrite(STATUS_LED_PIN, HIGH);
@@ -807,6 +840,9 @@ void setup_app()
     lastActivity = millis();
 
     configure_ble();
+    Serial.print("BLE Address: ");
+    Serial.println(BLEDevice::getAddress().toString().c_str());
+    
     configure_camera();
 
     // Allocate buffer for photo chunks (200 bytes + 2 for frame index)
@@ -860,6 +896,7 @@ void loop_app()
     handleButton();
 
     // Check WiFi Status & Start Server
+    handleWiFiConnection(); // Process pending connection requests
     if (checkWiFiConnection()) {
         if (!serverStarted) {
             startCameraServer();
@@ -896,13 +933,14 @@ void loop_app()
     }
 
     // Check for power save mode (gentle optimization)
-    if (!connected && !photoDataUploading && (now - lastActivity > IDLE_THRESHOLD_MS)) {
-        enterPowerSave();
-    } else if (connected || photoDataUploading) {
-        if (powerSaveMode)
-            exitPowerSave();
-        lastActivity = now;
-    }
+    // DISABLED for stability debugging
+    // if (!connected && !photoDataUploading && (now - lastActivity > IDLE_THRESHOLD_MS)) {
+    //    enterPowerSave();
+    // } else if (connected || photoDataUploading) {
+    //    if (powerSaveMode)
+    //        exitPowerSave();
+    //    lastActivity = now;
+    // }
 
     // Check battery level periodically
     if (now - lastBatteryCheck >= BATTERY_TASK_INTERVAL_MS) {
@@ -1000,9 +1038,10 @@ void loop_app()
 
     // Light sleep optimization - major power savings while maintaining BLE
     // Disable light sleep when audio is active
-    if (!photoDataUploading && !audioSubscribed) {
-        enableLightSleep();
-    }
+    // DISABLED for stability debugging
+    // if (!photoDataUploading && !audioSubscribed) {
+    //    enableLightSleep();
+    // }
 
     // Adaptive delays for power saving (gentle optimization)
     if (photoDataUploading || audioSubscribed) {

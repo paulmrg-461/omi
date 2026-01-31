@@ -11,7 +11,7 @@
 // =============================================================================
 // DEVICE CONFIGURATION
 // =============================================================================
-#define BLE_DEVICE_NAME "OMI Glass"
+#define BLE_DEVICE_NAME "OmiGlass"
 #define FIRMWARE_VERSION_STRING "2.1.1"
 #define HARDWARE_REVISION "ESP32-S3-v1.0"
 #define MANUFACTURER_NAME "Based Hardware"
@@ -81,8 +81,8 @@ typedef enum {
 #define BLE_TX_POWER ESP_PWR_LVL_N0 // Low power for 6+ hour battery life
 
 // Power-optimized BLE Advertising - Longer intervals for power savings
-#define BLE_ADV_MIN_INTERVAL 0x0140  // 200ms minimum (was 160ms)
-#define BLE_ADV_MAX_INTERVAL 0x0280  // 400ms maximum (was 320ms)
+#define BLE_ADV_MIN_INTERVAL 0x00A0  // 100ms minimum (Faster for debug)
+#define BLE_ADV_MAX_INTERVAL 0x0140  // 200ms maximum (Faster for debug)
 #define BLE_ADV_TIMEOUT_MS 0         // Never stop advertising (always discoverable)
 #define BLE_SLEEP_ADV_INTERVAL 45000 // Re-advertise every 45 seconds when not connected (was 30s)
 
@@ -93,10 +93,10 @@ typedef enum {
 #define BLE_TASK_PRIORITY 1
 
 // Connection Parameters for Stable Connections with Power Optimization
-#define BLE_CONN_MIN_INTERVAL 20 // 25ms minimum connection interval (was 20ms)
-#define BLE_CONN_MAX_INTERVAL 40 // 50ms maximum connection interval (was 40ms)
+#define BLE_CONN_MIN_INTERVAL 32 // 40ms (Conservative/Stable)
+#define BLE_CONN_MAX_INTERVAL 64 // 80ms (Conservative/Stable)
 #define BLE_CONN_LATENCY 0       // No latency for immediate response
-#define BLE_CONN_TIMEOUT 800     // 8 second supervision timeout
+#define BLE_CONN_TIMEOUT 400     // 4 second supervision timeout (Standard)
 
 // =============================================================================
 // POWER STATES
