@@ -1,5 +1,5 @@
 # OMI Glass Firmware Guide
-### BLE + Wifi Support Version 
+
 This document provides comprehensive instructions for building, flashing, and managing the OMI Glass firmware.
 
 ## 1. Flashing with UF2 (Easiest Method)

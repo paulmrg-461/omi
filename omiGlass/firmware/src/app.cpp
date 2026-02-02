@@ -1,7 +1,4 @@
 #include "app.h"
-#include <vector>
-#include "wifi_manager.h"
-#include "web_server.h"
 
 #include <BLE2902.h>
 #include <BLEAdvertisedDevice.h>
@@ -36,11 +33,6 @@ bool powerSaveMode = false;
 // Light sleep optimization - saves ~15mA = adds 3-4 hours battery life
 bool lightSleepEnabled = true;
 
-// WiFi Globals
-String global_ssid = "";
-String global_pass = "";
-bool serverStarted = false;
-
 // ---------------------------------------------------------------------------------
 // BLE - Using config.h definitions
 // ---------------------------------------------------------------------------------
@@ -59,20 +51,12 @@ static BLEUUID photoControlUUID(PHOTO_CONTROL_UUID);
 static BLEUUID audioDataUUID(AUDIO_DATA_UUID);
 static BLEUUID audioCodecUUID(AUDIO_CODEC_UUID);
 
-static BLEUUID wifiSSIDUUID(WIFI_SSID_UUID);
-static BLEUUID wifiPassUUID(WIFI_PASSWORD_UUID);
-static BLEUUID ipAddressUUID(IP_ADDRESS_UUID);
-
 // Characteristics
 BLECharacteristic *photoDataCharacteristic;
 BLECharacteristic *photoControlCharacteristic;
 BLECharacteristic *batteryLevelCharacteristic;
 BLECharacteristic *audioDataCharacteristic;
 BLECharacteristic *audioCodecCharacteristic;
-
-BLECharacteristic *wifiSSIDCharacteristic;
-BLECharacteristic *wifiPassCharacteristic;
-BLECharacteristic *ipAddressCharacteristic;
 
 // Audio state
 bool audioEnabled = true;
@@ -418,7 +402,8 @@ class ServerHandler : public BLEServerCallbacks
         audioSubscribed = false;
         lastActivity = millis(); // Register activity - prevents sleep
         Serial.println(">>> BLE Client connected.");
-        // Don't send battery update here; client is not subscribed yet!
+        // Send current battery level on connect
+        updateBatteryService();
     }
     void onDisconnect(BLEServer *server) override
     {
@@ -473,26 +458,6 @@ class PhotoControlCallback : public BLECharacteristicCallbacks
             Serial.println(received);
             lastActivity = millis(); // Register activity - prevents sleep
             handlePhotoControl(received);
-        }
-    }
-};
-
-class WiFiProvisioningCallback : public BLECharacteristicCallbacks {
-    void onWrite(BLECharacteristic *pCharacteristic) {
-        std::string value = pCharacteristic->getValue();
-        String strVal = String(value.c_str());
-        
-        if (pCharacteristic->getUUID().toString() == wifiSSIDUUID.toString()) {
-             Serial.print("BLE: Received SSID: "); Serial.println(strVal);
-             global_ssid = strVal;
-        } else if (pCharacteristic->getUUID().toString() == wifiPassUUID.toString()) {
-             Serial.print("BLE: Received Password: "); Serial.println(strVal);
-             global_pass = strVal;
-             
-             // Trigger connection if we have both
-             if (global_ssid.length() > 0) {
-                 setupWiFi(global_ssid, global_pass);
-             }
         }
     }
 };
@@ -615,22 +580,6 @@ void configure_ble()
     uint8_t controlValue = 0;
     photoControlCharacteristic->setValue(&controlValue, 1);
 
-    // WiFi Characteristics
-    wifiSSIDCharacteristic = service->createCharacteristic(
-        wifiSSIDUUID, BLECharacteristic::PROPERTY_WRITE);
-    wifiSSIDCharacteristic->setCallbacks(new WiFiProvisioningCallback());
-
-    wifiPassCharacteristic = service->createCharacteristic(
-        wifiPassUUID, BLECharacteristic::PROPERTY_WRITE);
-    wifiPassCharacteristic->setCallbacks(new WiFiProvisioningCallback());
-
-    // IP Address Characteristic
-    ipAddressCharacteristic = service->createCharacteristic(
-        ipAddressUUID, BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-    BLE2902 *ipCcc = new BLE2902();
-    ipCcc->setNotifications(true);
-    ipAddressCharacteristic->addDescriptor(ipCcc);
-
     // Battery Service
     BLEService *batteryService = server->createService(BATTERY_SERVICE_UUID);
     batteryLevelCharacteristic = batteryService->createCharacteristic(
@@ -667,35 +616,12 @@ void configure_ble()
 
     // Start advertising
     BLEAdvertising *advertising = BLEDevice::getAdvertising();
-    
-    // Explicitly set Advertisement Data (UUIDs ONLY)
-    // Keep it small to ensure it's always received correctly.
-    BLEAdvertisementData advertisementData;
-    // 0x06 = General Discoverable Mode (0x02) | BR/EDR Not Supported (0x04)
-    // This is crucial for Android/iOS to see us as a connectable BLE device.
-    advertisementData.setFlags(0x06); 
-    advertisementData.setCompleteServices(serviceUUID);
-    advertising->setAdvertisementData(advertisementData);
-
-    // Explicitly set Scan Response Data (Name ONLY)
-    // Devices that want the name will ask for it (Active Scan).
-    BLEAdvertisementData scanResponseData;
-    scanResponseData.setName(BLE_DEVICE_NAME);
-    advertising->setScanResponseData(scanResponseData);
-    
-    // Set Advertising Interval (How often we shout "I'm here!")
-    // 0x140 (320) * 0.625ms = 200ms
-    // 0x280 (640) * 0.625ms = 400ms
-    advertising->setMinInterval(BLE_ADV_MIN_INTERVAL);
-    advertising->setMaxInterval(BLE_ADV_MAX_INTERVAL);
-
-    // REMOVED Preferred Connection Parameters from Advertisement
-    // Let the central (phone) decide the initial connection parameters.
-    // Setting these in advertisement can sometimes cause connection rejections
-    // if the phone doesn't like them.
-    // advertising->setMinPreferred(BLE_CONN_MIN_INTERVAL);
-    // advertising->setMaxPreferred(BLE_CONN_MAX_INTERVAL);
-
+    advertising->addServiceUUID(deviceInfoService->getUUID());
+    advertising->addServiceUUID(service->getUUID());
+    advertising->addServiceUUID(batteryService->getUUID());
+    advertising->setScanResponse(true);
+    advertising->setMinPreferred(BLE_ADV_MIN_INTERVAL);
+    advertising->setMaxPreferred(BLE_ADV_MAX_INTERVAL);
     BLEDevice::startAdvertising();
 
     Serial.println("BLE initialized and advertising started.");
@@ -808,23 +734,12 @@ static uint8_t *s_compressed_frame_2 = nullptr;
 
 void setup_app()
 {
-    // Ensure WiFi is OFF by default to prevent radio conflict during boot
-    WiFi.mode(WIFI_OFF);
-
-    // Initialize GPIO immediately for visual feedback
-    pinMode(STATUS_LED_PIN, OUTPUT);
-    // Blink LED 3 times quickly to indicate power on / reset
-    for(int i=0; i<3; i++) {
-        digitalWrite(STATUS_LED_PIN, LOW); // ON
-        delay(100);
-        digitalWrite(STATUS_LED_PIN, HIGH); // OFF
-        delay(100);
-    }
-
     Serial.begin(921600);
     Serial.println("Setup started...");
 
+    // Initialize GPIO
     pinMode(POWER_BUTTON_PIN, INPUT_PULLUP);
+    pinMode(STATUS_LED_PIN, OUTPUT);
 
     // LED uses inverted logic: HIGH = OFF, LOW = ON
     digitalWrite(STATUS_LED_PIN, HIGH);
@@ -840,9 +755,6 @@ void setup_app()
     lastActivity = millis();
 
     configure_ble();
-    Serial.print("BLE Address: ");
-    Serial.println(BLEDevice::getAddress().toString().c_str());
-    
     configure_camera();
 
     // Allocate buffer for photo chunks (200 bytes + 2 for frame index)
@@ -895,29 +807,6 @@ void loop_app()
     // Handle button presses
     handleButton();
 
-    // Check WiFi Status & Start Server
-    handleWiFiConnection(); // Process pending connection requests
-    if (checkWiFiConnection()) {
-        if (!serverStarted) {
-            startCameraServer();
-            
-            // Notify IP Address via BLE
-            String ip = getWiFiIP();
-            Serial.print("Notifying IP Address: ");
-            Serial.println(ip);
-            if (ipAddressCharacteristic) {
-                ipAddressCharacteristic->setValue(ip.c_str());
-                if (connected) {
-                    ipAddressCharacteristic->notify();
-                }
-            }
-            
-            // TODO: Start Audio WebSocket here too if needed
-            serverStarted = true;
-            Serial.println("Web Server Started. MJPEG Stream available at http://" + getWiFiIP() + "/stream");
-        }
-    }
-
     // Update LED
     updateLED();
 
@@ -933,14 +822,13 @@ void loop_app()
     }
 
     // Check for power save mode (gentle optimization)
-    // DISABLED for stability debugging
-    // if (!connected && !photoDataUploading && (now - lastActivity > IDLE_THRESHOLD_MS)) {
-    //    enterPowerSave();
-    // } else if (connected || photoDataUploading) {
-    //    if (powerSaveMode)
-    //        exitPowerSave();
-    //    lastActivity = now;
-    // }
+    if (!connected && !photoDataUploading && (now - lastActivity > IDLE_THRESHOLD_MS)) {
+        enterPowerSave();
+    } else if (connected || photoDataUploading) {
+        if (powerSaveMode)
+            exitPowerSave();
+        lastActivity = now;
+    }
 
     // Check battery level periodically
     if (now - lastBatteryCheck >= BATTERY_TASK_INTERVAL_MS) {
@@ -1038,10 +926,9 @@ void loop_app()
 
     // Light sleep optimization - major power savings while maintaining BLE
     // Disable light sleep when audio is active
-    // DISABLED for stability debugging
-    // if (!photoDataUploading && !audioSubscribed) {
-    //    enableLightSleep();
-    // }
+    if (!photoDataUploading && !audioSubscribed) {
+        enableLightSleep();
+    }
 
     // Adaptive delays for power saving (gentle optimization)
     if (photoDataUploading || audioSubscribed) {
