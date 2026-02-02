@@ -4,9 +4,17 @@
 // =============================================================================
 // BOARD CONFIGURATION - Must be defined before camera includes
 // =============================================================================
+#ifndef CAMERA_MODEL_XIAO_ESP32S3
 #define CAMERA_MODEL_XIAO_ESP32S3 // Define camera model for Seeed Xiao ESP32S3
+#endif
+
+#ifndef BOARD_HAS_PSRAM
 #define BOARD_HAS_PSRAM           // Enable PSRAM support
+#endif
+
+#ifndef CONFIG_ARDUHAL_ESP_LOG
 #define CONFIG_ARDUHAL_ESP_LOG    // Enable Arduino HAL logging
+#endif
 
 // =============================================================================
 // DEVICE CONFIGURATION
@@ -19,9 +27,14 @@
 // =============================================================================
 // WIFI & API CONFIGURATION (STANDALONE MODE)
 // =============================================================================
-#define WIFI_SSID "YOUR_WIFI_SSID"      // Change this
-#define WIFI_PASS "YOUR_WIFI_PASSWORD"  // Change this
-#define API_ENDPOINT "http://your-server.com/api/upload" // Change this
+#define WIFI_SSID "FLIA_REALPE"
+#define WIFI_PASS "Juanmartin2025"
+#define API_BASE_URL "https://pq48nm3b-8000.use2.devtunnels.ms"
+#define API_WS_URL "wss://pq48nm3b-8000.use2.devtunnels.ms"
+#define API_ENDPOINT "https://pq48nm3b-8000.use2.devtunnels.ms/audio"
+
+// Enable Standalone Mode
+#define STANDALONE_MODE
 
 // =============================================================================
 // POWER MANAGEMENT - Optimized for MINIMUM 6-8 hours, targeting 10+ hours

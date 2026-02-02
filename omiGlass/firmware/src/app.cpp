@@ -2,6 +2,10 @@
 #include <vector>
 #include "wifi_uploader.h"
 
+#ifdef STANDALONE_MODE
+#include "standalone.h"
+#endif
+
 #include <BLE2902.h>
 #include <BLEAdvertisedDevice.h>
 #include <BLEDevice.h>
@@ -330,8 +334,12 @@ void shutdownDevice()
 // -------------------------------------------------------------------------
 void onMicData(int16_t *data, size_t samples)
 {
+#ifdef STANDALONE_MODE
+    standaloneAudioCallback(data, samples);
+#else
     // Feed PCM data to Opus encoder
     opus_receive_pcm(data, samples);
+#endif
 }
 
 void onOpusEncoded(uint8_t *data, size_t len)
@@ -742,8 +750,8 @@ void configure_camera()
     config.pin_pclk = PCLK_GPIO_NUM;
     config.pin_vsync = VSYNC_GPIO_NUM;
     config.pin_href = HREF_GPIO_NUM;
-    config.pin_sscb_sda = SIOD_GPIO_NUM;
-    config.pin_sscb_scl = SIOC_GPIO_NUM;
+    config.pin_sccb_sda = SIOD_GPIO_NUM;
+    config.pin_sccb_scl = SIOC_GPIO_NUM;
     config.pin_pwdn = PWDN_GPIO_NUM;
     config.pin_reset = RESET_GPIO_NUM;
     config.xclk_freq_hz = CAMERA_XCLK_FREQ;
@@ -796,6 +804,10 @@ void setup_app()
     setupWiFi(); // Initialize WiFi
     configure_ble();
     configure_camera();
+
+#ifdef STANDALONE_MODE
+    setupStandalone();
+#endif
 
     // Allocate buffer for photo chunks (200 bytes + 2 for frame index)
     s_compressed_frame_2 = (uint8_t *) ps_calloc(202, sizeof(uint8_t));
@@ -853,8 +865,14 @@ void loop_app()
     // Process microphone data - always run to keep audio realtime
     if (audioEnabled && mic_is_running()) {
         mic_process();
+#ifndef STANDALONE_MODE
         opus_process();
+#endif
     }
+
+#ifdef STANDALONE_MODE
+    loopStandalone();
+#endif
 
     // Send audio packets over BLE - PRIORITY over photo
     if (connected && audioSubscribed) {
