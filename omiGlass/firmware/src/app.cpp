@@ -1,3 +1,4 @@
+#include "config.h" // Ensure config is loaded first
 #include "app.h"
 #include <vector>
 #include "wifi_uploader.h"
@@ -801,12 +802,18 @@ void setup_app()
     setCpuFrequencyMhz(NORMAL_CPU_FREQ_MHZ);
     lastActivity = millis();
 
-    setupWiFi(); // Initialize WiFi
+#ifndef STANDALONE_MODE
+    setupWiFi(); // Initialize WiFi for normal mode
+#endif
+
     configure_ble();
     configure_camera();
 
 #ifdef STANDALONE_MODE
+    Serial.println(">>> STANDALONE MODE ENABLED <<<");
     setupStandalone();
+#else
+    Serial.println(">>> NORMAL MODE (BLE + WIFI) <<<");
 #endif
 
     // Allocate buffer for photo chunks (200 bytes + 2 for frame index)

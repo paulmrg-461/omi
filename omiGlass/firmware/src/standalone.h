@@ -50,8 +50,48 @@ void webSocketEvent(WStype_t type, uint8_t * payload, size_t length) {
 void setupStandalone() {
     Serial.println("Starting Standalone Mode...");
     
-    // 1. Connect to WiFi
+    // 0. Reset WiFi
+    WiFi.disconnect(true);
+    WiFi.mode(WIFI_OFF);
+    delay(100);
     WiFi.mode(WIFI_STA);
+    
+    // 1. Scan for networks FIRST to verify hardware/antenna
+    Serial.println("Performing initial WiFi scan...");
+    int n = WiFi.scanNetworks();
+    Serial.println("Scan done");
+    bool targetFound = false;
+    
+    if (n == 0) {
+        Serial.println("!!! NO NETWORKS FOUND !!! Check your antenna connection.");
+    } else {
+        Serial.print(n);
+        Serial.println(" networks found:");
+        for (int i = 0; i < n; ++i) {
+            Serial.print(i + 1);
+            Serial.print(": ");
+            String ssid = WiFi.SSID(i);
+            Serial.print(ssid);
+            Serial.print(" (");
+            Serial.print(WiFi.RSSI(i));
+            Serial.print("dBm)");
+            Serial.print((WiFi.encryptionType(i) == WIFI_AUTH_OPEN)?" Open":" Secure");
+            Serial.println();
+            
+            if (ssid == WIFI_SSID) {
+                targetFound = true;
+                Serial.println(">>> TARGET NETWORK FOUND! <<<");
+            }
+            delay(10);
+        }
+    }
+    
+    if (!targetFound) {
+        Serial.printf("WARNING: Target SSID '%s' was not found during scan.\n", WIFI_SSID);
+        Serial.println("Attempting connection anyway, but it will likely fail.");
+    }
+
+    // 2. Connect to WiFi
     WiFi.begin(WIFI_SSID, WIFI_PASS);
     Serial.printf("Connecting to WiFi SSID: %s\n", WIFI_SSID);
     
