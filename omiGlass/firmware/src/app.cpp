@@ -804,9 +804,11 @@ void setup_app()
 
 #ifndef STANDALONE_MODE
     setupWiFi(); // Initialize WiFi for normal mode
+    configure_ble();
+#else
+    Serial.println("Skipping BLE setup in Standalone Mode");
 #endif
 
-    configure_ble();
     configure_camera();
 
 #ifdef STANDALONE_MODE

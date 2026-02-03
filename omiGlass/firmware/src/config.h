@@ -13,7 +13,7 @@
 #endif
 
 #ifndef CONFIG_ARDUHAL_ESP_LOG
-#define CONFIG_ARDUHAL_ESP_LOG    // Enable Arduino HAL logging
+// #define CONFIG_ARDUHAL_ESP_LOG    // DISABLE Arduino HAL logging to clean up output
 #endif
 
 // =============================================================================
@@ -29,9 +29,9 @@
 // =============================================================================
 #define WIFI_SSID "FLIA_REALPE"
 #define WIFI_PASS "Juanmartin2025"
-#define API_BASE_URL "https://pq48nm3b-8000.use2.devtunnels.ms"
-#define API_WS_URL "wss://pq48nm3b-8000.use2.devtunnels.ms"
-#define API_ENDPOINT "https://pq48nm3b-8000.use2.devtunnels.ms/audio"
+#define API_BASE_URL "https://pq48nm3b-1719.use2.devtunnels.ms"
+#define API_WS_URL "wss://pq48nm3b-1719.use2.devtunnels.ms"
+#define API_ENDPOINT "https://pq48nm3b-1719.use2.devtunnels.ms/audio"
 
 // Enable Standalone Mode
 #define STANDALONE_MODE
@@ -40,9 +40,9 @@
 // POWER MANAGEMENT - Optimized for MINIMUM 6-8 hours, targeting 10+ hours
 // =============================================================================
 // CPU Frequency Management - Aggressive power optimization
-#define MAX_CPU_FREQ_MHZ 100   // Further reduced from 120MHz - still sufficient
-#define MIN_CPU_FREQ_MHZ 40    // Ultra-low power for idle states
-#define NORMAL_CPU_FREQ_MHZ 80 // Normal operation frequency (good balance)
+#define MAX_CPU_FREQ_MHZ 160   // Standard ESP32 WiFi speed
+#define MIN_CPU_FREQ_MHZ 80    // Minimum for reliable WiFi
+#define NORMAL_CPU_FREQ_MHZ 160 // Keep it high for stability during standalone
 
 // Sleep Management
 #define LIGHT_SLEEP_DURATION_US 50000  // 50ms light sleep intervals

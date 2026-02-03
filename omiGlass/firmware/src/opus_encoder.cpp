@@ -1,5 +1,6 @@
 #include "opus_encoder.h"
 
+#ifndef DISABLE_OPUS
 #include <opus.h>
 #include <esp_heap_caps.h>
 
@@ -100,75 +101,81 @@ int opus_receive_pcm(int16_t *data, size_t samples)
     if (pcm_ring_buffer == nullptr) {
         return -1;
     }
+
+    // Write to ring buffer
     for (size_t i = 0; i < samples; i++) {
-        size_t next_write = (ring_write_pos + 1) % AUDIO_RING_BUFFER_SAMPLES;
-        if (next_write == ring_read_pos) {
-            // Buffer full, drop oldest sample
+        pcm_ring_buffer[ring_write_pos] = data[i];
+        ring_write_pos = (ring_write_pos + 1) % AUDIO_RING_BUFFER_SAMPLES;
+        
+        // If we wrapped around and hit read pos, advance read pos (drop oldest data)
+        if (ring_write_pos == ring_read_pos) {
             ring_read_pos = (ring_read_pos + 1) % AUDIO_RING_BUFFER_SAMPLES;
         }
-        pcm_ring_buffer[ring_write_pos] = data[i];
-        ring_write_pos = next_write;
     }
+    
     return 0;
-}
-
-static size_t ring_buffer_available()
-{
-    if (ring_write_pos >= ring_read_pos) {
-        return ring_write_pos - ring_read_pos;
-    } else {
-        return AUDIO_RING_BUFFER_SAMPLES - ring_read_pos + ring_write_pos;
-    }
-}
-
-int opus_encode_frame(int16_t *pcm_data, size_t samples)
-{
-    if (encoder == nullptr || opus_output_buffer == nullptr) {
-        return -1;
-    }
-
-    if (samples != OPUS_FRAME_SAMPLES) {
-        Serial.printf("Invalid frame size: %d (expected %d)\n", samples, OPUS_FRAME_SAMPLES);
-        return -1;
-    }
-
-    opus_int32 encoded_bytes =
-        opus_encode(encoder, pcm_data, OPUS_FRAME_SAMPLES, opus_output_buffer, OPUS_OUTPUT_MAX_BYTES);
-
-    if (encoded_bytes < 0) {
-        Serial.printf("Opus encoding error: %d\n", encoded_bytes);
-        return -1;
-    }
-
-    return encoded_bytes;
 }
 
 void opus_process()
 {
-    if (encoder == nullptr || pcm_ring_buffer == nullptr || opus_input_buffer == nullptr) {
+    if (encoder == nullptr || pcm_ring_buffer == nullptr) {
         return;
     }
-
-    // Check if we have enough samples for a frame
-    while (ring_buffer_available() >= OPUS_FRAME_SAMPLES) {
-        // Read samples from ring buffer
-        for (size_t i = 0; i < OPUS_FRAME_SAMPLES; i++) {
+    
+    // Check available samples
+    size_t available_samples;
+    if (ring_write_pos >= ring_read_pos) {
+        available_samples = ring_write_pos - ring_read_pos;
+    } else {
+        available_samples = AUDIO_RING_BUFFER_SAMPLES - ring_read_pos + ring_write_pos;
+    }
+    
+    // Process frames if we have enough data
+    while (available_samples >= OPUS_FRAME_SAMPLES) {
+        // Read one frame from ring buffer
+        for (int i = 0; i < OPUS_FRAME_SAMPLES; i++) {
             opus_input_buffer[i] = pcm_ring_buffer[ring_read_pos];
             ring_read_pos = (ring_read_pos + 1) % AUDIO_RING_BUFFER_SAMPLES;
         }
-
-        // Encode frame
-        int encoded_bytes = opus_encode_frame(opus_input_buffer, OPUS_FRAME_SAMPLES);
-
-        if (encoded_bytes > 0 && encoded_callback != nullptr) {
-            encoded_callback(opus_output_buffer, encoded_bytes);
+        
+        available_samples -= OPUS_FRAME_SAMPLES;
+        
+        // Encode
+        int len = opus_encode(encoder, opus_input_buffer, OPUS_FRAME_SAMPLES, opus_output_buffer, OPUS_OUTPUT_MAX_BYTES);
+        
+        if (len > 0) {
+            // Send encoded data
+            if (encoded_callback != nullptr) {
+                encoded_callback(opus_output_buffer, len);
+            }
+        } else if (len < 0) {
+            Serial.printf("Opus encode error: %d\n", len);
         }
     }
 }
 
 uint8_t opus_get_codec_id()
 {
-    // Codec ID 20 = Opus (matching Omi protocol)
-    // Actually Omi uses CODEC_ID 21 for Opus
-    return AUDIO_CODEC_ID;
+    return 20; // Opus
 }
+
+#else // DISABLE_OPUS
+
+bool opus_encoder_init() {
+    Serial.println("Opus encoder DISABLED");
+    return true; 
+}
+
+void opus_set_callback(opus_encoded_handler callback) { (void)callback; }
+
+int opus_receive_pcm(int16_t *data, size_t samples) { 
+    (void)data; 
+    (void)samples; 
+    return 0; 
+}
+
+void opus_process() {}
+
+uint8_t opus_get_codec_id() { return 0; }
+
+#endif // DISABLE_OPUS

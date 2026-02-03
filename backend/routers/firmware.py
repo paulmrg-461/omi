@@ -1,11 +1,14 @@
 import os
 import re
 from typing import Optional, Tuple, List, Dict
+import uuid
+from datetime import datetime
 
 import httpx
 from fastapi import APIRouter, HTTPException
 from enum import Enum
 import ast
+from pydantic import BaseModel
 
 from database.redis_db import get_generic_cache, set_generic_cache
 
@@ -18,6 +21,48 @@ class DeviceModel(int, Enum):
 
 
 router = APIRouter()
+
+
+class DeviceRegistrationRequest(BaseModel):
+    mac_address: str
+    model: str
+    firmware_version: Optional[str] = None
+
+
+class DeviceRegistrationResponse(BaseModel):
+    mac_address: str
+    model: str
+    firmware_version: Optional[str] = None
+    last_seen: datetime
+    status: str
+    id: str
+
+
+@router.post("/devices/connect", response_model=DeviceRegistrationResponse)
+@router.post("/api/devices/connect", response_model=DeviceRegistrationResponse)
+async def register_device(request: DeviceRegistrationRequest):
+    """Register a device and return its device_id"""
+    # In a real app, you would save this to the database.
+    # For now, we generate a random ID or use the MAC address as ID logic if needed.
+    # But the guide says "integer ID" or "MAC address".
+    # We will return a UUID for now, or just the MAC if we want to be simple.
+    # Let's return a UUID to follow the guide's implication of an "internal ID".
+    
+    device_id = str(uuid.uuid4())
+    
+    # If we want to simulate an integer ID:
+    # device_id = 1
+    
+    print(f"Device connected: {request.mac_address} ({request.model})")
+    
+    return DeviceRegistrationResponse(
+        mac_address=request.mac_address,
+        model=request.model,
+        firmware_version=request.firmware_version,
+        last_seen=datetime.utcnow(),
+        status="connected",
+        id=device_id
+    )
 
 
 # Device Model Number
